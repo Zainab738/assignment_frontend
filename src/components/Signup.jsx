@@ -1,5 +1,17 @@
 import { useState } from "react";
-import api from "../api";
+import { userApi, postApi } from "../api";
+
+// Users
+userApi
+  .get("/users")
+  .then((res) => console.log(res.data))
+  .catch((err) => console.error(err));
+
+// Posts
+postApi
+  .get("/")
+  .then((res) => console.log(res.data))
+  .catch((err) => console.error(err));
 import { useNavigate } from "react-router-dom";
 
 function Signup() {
@@ -12,7 +24,7 @@ function Signup() {
     console.log(" Signup form submitted:", { email, password });
 
     try {
-      const res = await api.post("/signup", { email, password });
+      const res = await userApi.post("/signup", { email, password });
       console.log("Signup success:", res.data);
       alert("Signup successful! Please login.");
       navigate("/");
@@ -33,8 +45,6 @@ function Signup() {
           );
         } else if (data.message) {
           alert(`Signup failed: ${data.message}`);
-        } else {
-          alert(`Signup failed: ${JSON.stringify(data)}`);
         }
       } else {
         alert("Network error, please try again.");

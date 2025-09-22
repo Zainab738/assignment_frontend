@@ -1,6 +1,18 @@
 import { useNavigate } from "react-router-dom";
-import api from "../api";
 import { useState } from "react";
+import { userApi, postApi } from "../api";
+
+// Users
+userApi
+  .get("/users")
+  .then((res) => console.log(res.data))
+  .catch((err) => console.error(err));
+
+// Posts
+postApi
+  .get("/")
+  .then((res) => console.log(res.data))
+  .catch((err) => console.error(err));
 
 const Login = () => {
   const navigate = useNavigate();
@@ -10,14 +22,14 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post("/login", { email, password });
+      const res = await userApi.post("/login", { email, password });
       console.log("Login Response:", res.data);
 
       // Save token in localStorage
       localStorage.setItem("token", res.data.token);
 
       alert("Login successful!");
-      // navigate("/verification"); // optionally redirect after login
+      navigate("/profile");
     } catch (err) {
       console.error("Login Error:", err.message);
       alert("Login failed!");
