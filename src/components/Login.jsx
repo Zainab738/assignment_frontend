@@ -2,18 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { userApi, postApi } from "../api";
 
-// Users
-userApi
-  .get("/users")
-  .then((res) => console.log(res.data))
-  .catch((err) => console.error(err));
-
-// Posts
-postApi
-  .get("/")
-  .then((res) => console.log(res.data))
-  .catch((err) => console.error(err));
-
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
