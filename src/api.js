@@ -1,18 +1,27 @@
 import axios from "axios";
 
 export const postApi = axios.create({
-  baseURL: "http://localhost:3000/posts", // change if your backend is on another port
+  baseURL: "http://localhost:3000/posts",
 });
 
 export const userApi = axios.create({
   baseURL: "http://localhost:3000/users",
 });
 
-// add token to every request automatically
+// attach token to every postApi request
 postApi.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token"); // get saved token
+  const token = localStorage.getItem("token");
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`; // attach it
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// attach token to every userApi request too (this is the change!)
+userApi.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });

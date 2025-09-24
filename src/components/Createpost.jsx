@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { postApi } from "../api";
+import { useNavigate } from "react-router-dom";
 
 function Createpost() {
+  const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
@@ -20,6 +22,7 @@ function Createpost() {
       const res = await postApi.post("/create", formData);
       console.log("Post created:", res.data);
       alert("Post created successfully!");
+      navigate("/profile");
     } catch (error) {
       console.error(error);
       alert("Failed to create post");
@@ -51,7 +54,6 @@ function Createpost() {
           onChange={(e) => setImage(e.target.files[0])}
           className="border p-2 rounded"
           accept="image/*"
-          required
         />
         <button
           type="submit"
