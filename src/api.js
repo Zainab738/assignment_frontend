@@ -17,7 +17,7 @@ postApi.interceptors.request.use((config) => {
   return config;
 });
 
-// attach token to every userApi request too (this is the change!)
+// attach token to every userApi request too
 userApi.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
