@@ -6,26 +6,41 @@ function Createpost() {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [image, setImage] = useState(null);
+  const [media, setMedia] = useState(null); // image or video
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState(null); // success/error
+  const [isError, setIsError] = useState(false); // track error or success
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setMessage(null);
 
     const formData = new FormData();
     formData.append("title", title);
     formData.append("content", content);
-    if (image) {
-      formData.append("image", image);
+    if (media) {
+      formData.append("media", media); // updated to media
     }
 
     try {
       const res = await postApi.post("/create", formData);
       console.log("Post created:", res.data);
-      alert("Post created successfully!");
-      navigate("/profile");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to create post");
+      setIsError(false);
+      setMessage(res.data.message || "Post created successfully!");
+      setTitle(""); // clear fields
+      setContent("");
+      setMedia(null);
+      // delay so message can show
+      setTimeout(() => navigate("/feed"), 1200);
+    } catch (err) {
+      console.error("Post creation error:", err);
+      setIsError(true);
+      const backendMsg =
+        err.response?.data?.error || err.response?.data?.message;
+      setMessage(backendMsg || "Post creation failed!");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -51,16 +66,40 @@ function Createpost() {
         />
         <input
           type="file"
-          onChange={(e) => setImage(e.target.files[0])}
+          onChange={(e) => setMedia(e.target.files[0])}
           className="border p-2 rounded"
-          accept="image/*"
+          accept="image/*,video/*" // supports images and videos
         />
+
         <button
           type="submit"
-          className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+          disabled={isLoading}
+          className={`p-2 rounded text-white ${
+            isLoading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-[#F26B72] hover:bg-[#e55a61]"
+          }`}
         >
-          Create Post
+          {isLoading ? "Creating..." : "Create Post"}
         </button>
+
+        {/* Loader */}
+        {isLoading && (
+          <div className="flex justify-center mt-2">
+            <div className="w-6 h-6 border-4 border-t-transparent border-[#F26B72] rounded-full animate-spin"></div>
+          </div>
+        )}
+
+        {/* Message area */}
+        {message && (
+          <p
+            className={`mt-2 text-center font-medium ${
+              isError ? "text-red-600" : "text-green-600"
+            }`}
+          >
+            {message}
+          </p>
+        )}
       </form>
     </div>
   );
