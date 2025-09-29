@@ -1,4 +1,10 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Profile from "./components/Profile";
@@ -8,12 +14,18 @@ import EditPost from "./components/EditPost";
 import Feed from "./components/Feed";
 import Followers from "./components/Followers";
 import Following from "./components/Following";
+import Navbar from "./components/Navbar";
 
-function App() {
+function Layout() {
+  const location = useLocation();
+  const hideNavbar =
+    location.pathname === "/login" || location.pathname === "/signup";
+
   return (
-    <Router>
+    <>
+      {!hideNavbar && <Navbar />}
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Feed />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/profile" element={<Profile />} />
@@ -23,7 +35,16 @@ function App() {
         <Route path="/feed" element={<Feed />} />
         <Route path="/followers" element={<Followers />} />
         <Route path="/following" element={<Following />} />
+        <Route path="*" element={<Navigate to="/feed" replace />} />
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Layout />
     </Router>
   );
 }

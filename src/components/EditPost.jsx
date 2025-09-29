@@ -8,8 +8,12 @@ function EditPost() {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [image, setImage] = useState(null); // new file if user picks one
-  const [previewImage, setPreviewImage] = useState(""); // shows preview
+  const [media, setMedia] = useState(null); // new file if user picks one
+  const [previewMedia, setPreviewMedia] = useState(""); // shows preview
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState(null);
+  const [isError, setIsError] = useState(false);
 
   // fetch existing post
   useEffect(() => {
@@ -18,9 +22,13 @@ function EditPost() {
         const res = await postApi.get(`/${id}`);
         setTitle(res.data.title);
         setContent(res.data.content);
-        setPreviewImage(res.data.image);
+        setPreviewMedia(res.data.image || res.data.video || ""); // updated
       } catch (err) {
-        console.error("Failed to load post:", err);
+        console.error("Fetch Error:", err);
+        setIsError(true);
+        const backendMsg =
+          err.response?.data?.error || err.response?.data?.message;
+        setMessage(backendMsg || "Failed to fetch post");
       }
     };
     fetchPost();
@@ -28,21 +36,27 @@ function EditPost() {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setMessage(null);
 
     const formData = new FormData();
     formData.append("title", title);
     formData.append("content", content);
-    if (image) {
-      formData.append("image", image); // only add if new image is selected
+    if (media) {
+      formData.append("media", media); // supports image or video
     }
 
     try {
-      await postApi.patch(`/update/${id}`, formData);
-      alert("Post updated successfully!");
-      navigate("/profile");
+      const res = await postApi.patch(`/update/${id}`, formData);
+      setIsError(false);
+      setMessage(res.data?.message || "Post updated successfully!");
+      setTimeout(() => navigate("/feed"), 1200);
     } catch (err) {
       console.error("Failed to update post:", err);
-      alert("Update failed");
+      setIsError(true);
+      setMessage(err.response?.data?.error || "Update failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -65,38 +79,69 @@ function EditPost() {
           required
         />
 
-        {/* preview section */}
-        {previewImage && (
+        {/* Preview section */}
+        {previewMedia && (
           <div className="mb-2">
             <p className="text-gray-600 text-sm mb-1">Preview:</p>
-            <img
-              src={previewImage}
-              alt="Preview"
-              className="w-full h-40 object-cover rounded"
-            />
+            {previewMedia.endsWith(".mp4") || previewMedia.endsWith(".mov") ? (
+              <video
+                src={previewMedia}
+                controls
+                className="w-full h-40 object-cover rounded"
+              />
+            ) : (
+              <img
+                src={previewMedia}
+                alt="Preview"
+                className="w-full h-40 object-cover rounded"
+              />
+            )}
           </div>
         )}
 
-        {/* file input */}
+        {/* File input */}
         <input
           type="file"
           onChange={(e) => {
             const file = e.target.files[0];
-            setImage(file);
+            setMedia(file);
             if (file) {
-              setPreviewImage(URL.createObjectURL(file)); // new preview
+              setPreviewMedia(URL.createObjectURL(file));
             }
           }}
           className="border p-2 rounded"
-          accept="image/*"
+          accept="image/*,video/*" // support images/videos
         />
 
         <button
           type="submit"
-          className="bg-yellow-500 text-white p-2 rounded hover:bg-yellow-600"
+          disabled={isLoading}
+          className={`p-2 rounded text-white ${
+            isLoading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-[#F26B72] hover:bg-[#e55a61]"
+          }`}
         >
-          Update Post
+          {isLoading ? "Updating..." : "Update Post"}
         </button>
+
+        {/* Loader */}
+        {isLoading && (
+          <div className="flex justify-center mt-2">
+            <div className="w-6 h-6 border-4 border-t-transparent border-[#F26B72] rounded-full animate-spin"></div>
+          </div>
+        )}
+
+        {/* Message */}
+        {message && (
+          <p
+            className={`mt-2 text-center font-medium ${
+              isError ? "text-red-600" : "text-green-600"
+            }`}
+          >
+            {message}
+          </p>
+        )}
       </form>
     </div>
   );
