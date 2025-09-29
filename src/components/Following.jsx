@@ -42,12 +42,12 @@ function Following() {
           {following.map((user) => (
             <li
               key={user._id}
-              className="flex justify-between items-center p-3 border rounded-lg shadow-sm bg-white"
+              className="flex justify-between items-center p-3 border rounded-lg shadow-sm "
             >
               <span>{user.email}</span>
               <button
                 onClick={() => handleUnfollow(user._id)}
-                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                className="bg-[#F26B72] text-white px-3 py-1 rounded "
               >
                 Unfollow
               </button>

@@ -32,7 +32,7 @@ function Followers() {
           {followers.map((user) => (
             <li
               key={user._id}
-              className="flex justify-between items-center p-3 border rounded-lg shadow-sm bg-white"
+              className="flex justify-between items-center p-3 border rounded-lg shadow-sm "
             >
               <span>{user.email}</span>
             </li>
